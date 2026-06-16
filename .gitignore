@@ -30,3 +30,8 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Screenshots / assets
+*.png
+*.jpg
+*.jpeg
