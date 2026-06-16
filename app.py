@@ -28,43 +28,111 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-DARK_CSS = """
+NEWSPRINT_CSS = """
 <style>
-    /* Dark theme base */
-    .stApp { background-color: #0E1117; color: #E0E0E0; }
-    .main .block-container { max-width: 1400px; padding: 1rem 2rem; }
-    h1, h2, h3 { color: #FFFFFF !important; font-weight: 600; }
-    .st-bx { background-color: #1A1D24; border: 1px solid #2C2F36; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; }
-    div[data-testid="metric-container"] { background: #1A1D24; border: 1px solid #2C2F36; border-radius: 10px; padding: 1rem; margin: 0.25rem; }
-    div[data-testid="metric-container"] label { color: #8892A4 !important; font-size: 0.85rem; }
-    div[data-testid="metric-container"] div[data-testid="metric-value"] { color: #FFFFFF !important; font-size: 1.8rem !important; font-weight: 700; }
-    div[data-testid="stSelectbox"] > div { background-color: #1A1D24; border: 1px solid #2C2F36; border-radius: 8px; }
-    .st-bw { background-color: #1A1D24; }
-    .stButton > button { border-radius: 8px; font-weight: 600; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=block');
+
+    * { border-radius: 0 !important; }
+
+    .stApp {
+        background-color: #F9F9F7;
+        color: #111111;
+        font-family: 'Inter', 'Helvetica Neue', sans-serif;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23111111' fill-opacity='0.04' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+    }
+    .main .block-container { max-width: 1280px; padding: 0 1rem; }
+    h1, h2, h3 { font-family: 'Playfair Display', 'Times New Roman', serif !important; color: #111111 !important; }
+    h1 { font-size: 3rem; font-weight: 900; letter-spacing: -0.02em; line-height: 0.9; }
+    h2 { font-size: 2.25rem; font-weight: 700; letter-spacing: -0.01em; }
+    h3 { font-size: 1.5rem; font-weight: 700; }
+
+    .st-bx { background-color: #F9F9F7; border: 1px solid #111111; padding: 1.5rem; margin-bottom: 1rem; }
+    div[data-testid="metric-container"] { background: #F9F9F7; border: 1px solid #111111; padding: 1rem; margin: 0; }
+    div[data-testid="metric-container"] label { color: #737373 !important; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.15em; font-family: 'JetBrains Mono', monospace; }
+    div[data-testid="metric-container"] div[data-testid="metric-value"] { color: #111111 !important; font-size: 1.8rem !important; font-weight: 700; font-family: 'Playfair Display', serif; }
+    div[data-testid="stSelectbox"] > div { background-color: #F9F9F7; border: 1px solid #111111; }
+    .st-bw { background-color: #F9F9F7; }
+    .stButton > button {
+        font-family: 'Inter', sans-serif !important;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid #111111 !important;
+        background: #111111 !important;
+        color: #F9F9F7 !important;
+        transition: all 0.2s ease;
+        min-height: 44px;
+    }
+    .stButton > button:hover {
+        background: #F9F9F7 !important;
+        color: #111111 !important;
+    }
+    .stButton > button[kind="secondary"] {
+        background: #F9F9F7 !important;
+        color: #111111 !important;
+    }
+    .stButton > button[kind="secondary"]:hover {
+        background: #111111 !important;
+        color: #F9F9F7 !important;
+    }
     .st-emotion-cache-1y4p8pa { padding: 2rem 1rem; }
-    .stProgress > div > div > div { background-image: linear-gradient(90deg, #00B4D8, #0077B6); }
+    .stProgress > div > div > div { background: #111111 !important; }
     footer { display: none; }
     #MainMenu { display: none; }
     header { display: none; }
-    div[data-testid="stExpander"] { background: #1A1D24; border: 1px solid #2C2F36; border-radius: 10px; }
-    .conf-very-high { color: #00E676; font-weight: 700; }
-    .conf-high { color: #69F0AE; font-weight: 600; }
-    .conf-medium { color: #FFD740; font-weight: 600; }
-    .conf-low { color: #FF6E40; font-weight: 600; }
-    .conf-coinflip { color: #FF5252; font-weight: 600; }
-    .prob-card { text-align: center; padding: 1rem; border-radius: 12px; }
-    .prob-value { font-size: 3rem; font-weight: 800; line-height: 1; }
-    .prob-label { font-size: 0.9rem; color: #8892A4; margin-top: 0.5rem; }
-    .predicted-score { font-size: 1.2rem; color: #B0BEC5; text-align: center; padding: 0.5rem; }
-    hr { border-color: #2C2F36; margin: 1.5rem 0; }
-    .stAlert { background-color: #1A1D24; border: 1px solid #2C2F36; color: #E0E0E0; border-radius: 10px; }
-    .badge { display: inline-block; padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-    .badge-green { background: #00C85333; color: #00E676; border: 1px solid #00C85355; }
-    .badge-red { background: #FF174433; color: #FF5252; border: 1px solid #FF174455; }
-    .badge-yellow { background: #FFD74033; color: #FFD740; border: 1px solid #FFD74055; }
+    div[data-testid="stExpander"] { background: #F9F9F7; border: 1px solid #111111; }
+    .stAlert { background-color: #F9F9F7; border: 1px solid #111111; color: #111111; }
+    hr { border-color: #111111; margin: 2rem 0; border-width: 2px 0 0 0; }
+
+    .conf-very-high { color: #111111; font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; }
+    .conf-high { color: #404040; font-weight: 600; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; }
+    .conf-medium { color: #737373; font-weight: 600; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; }
+    .conf-low { color: #525252; font-weight: 600; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; }
+    .conf-coinflip { color: #CC0000; font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; }
+
+    .prob-card { border: 2px solid #111111; padding: 1.5rem; text-align: center; background: #F9F9F7; }
+    .prob-card-title { font-family: 'Inter', sans-serif; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.2em; color: #737373; margin-bottom: 0.25rem; }
+    .prob-value { font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 900; line-height: 1; }
+    .prob-bar { height: 4px; background: #E5E5E0; margin-top: 0.75rem; }
+    .prob-bar-fill { height: 100%; background: #111111; }
+    .prob-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: #737373; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.4rem; display: flex; justify-content: space-between; }
+
+    .hard-shadow-hover { transition: all 0.2s ease; }
+    .hard-shadow-hover:hover { box-shadow: 4px 4px 0px 0px #111111; transform: translate(-2px, -2px); }
+
+    .edition { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.25em; color: #737373; border-bottom: 2px solid #111111; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+
+    .badge { display: inline-block; padding: 0.15rem 0.5rem; font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em; font-family: 'JetBrains Mono', monospace; border: 1px solid #111111; }
+    .badge-red { background: #CC0000; color: #F9F9F7; border-color: #CC0000; }
+    .badge-black { background: #111111; color: #F9F9F7; }
+
+    .section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.25em; color: #737373; margin-bottom: 0.25rem; }
+
+    .signal-card { border: 1px solid #111111; padding: 0.75rem 1rem; margin-bottom: 0.5rem; background: #F9F9F7; }
+
+    .ornament { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #A3A3A3; letter-spacing: 1em; text-align: center; padding: 0.75rem 0; }
+
+    .stat-card { border: 1px solid #111111; padding: 1rem; background: #F9F9F7; }
+    .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.15em; color: #737373; margin: 0; }
+    .stat-value { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; margin: 0.15rem 0; color: #111111; }
+    .stat-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: #737373; margin: 0; }
+
+    .ev-card { border: 2px solid #111111; padding: 1rem; text-align: center; background: #F9F9F7; }
+    .ev-value { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 900; }
+    .ev-label { font-family: 'Inter', sans-serif; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.15em; color: #737373; margin-top: 0.25rem; }
+    .ev-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #737373; margin-top: 0.15rem; }
+
+    .ticker { background: #111111; color: #F9F9F7; padding: 0.5rem 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; }
+
+    input, textarea, .stNumberInput input { border-radius: 0 !important; border-bottom: 2px solid #111111 !important; background: transparent !important; font-family: 'JetBrains Mono', monospace !important; }
+    input:focus, textarea:focus { background: #F0F0F0 !important; outline: none !important; }
+
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .live-dot { width: 10px; height: 10px; background: #CC0000; display: inline-block; animation: pulse 1.5s infinite; }
 </style>
 """
-st.markdown(DARK_CSS, unsafe_allow_html=True)
+st.markdown(NEWSPRINT_CSS, unsafe_allow_html=True)
 
 if "matches" not in st.session_state:
     st.session_state["matches"] = get_today_matches()
@@ -86,12 +154,13 @@ def get_match():
 
 with st.sidebar:
     st.markdown(
-        "<h1 style='font-size:1.5rem; margin-bottom:0;'>⚽ Predict</h1>"
-        "<p style='color:#8892A4; font-size:0.8rem; margin-top:0;'>"
-        "Dixon-Coles Poisson + Dynamic ELO + Calibrated Ensemble</p>",
+        "<div class='edition'>Vol. 1 | June 2026 | World Cup Edition</div>"
+        "<h1 style='font-size:1.75rem; margin-bottom:0; font-weight:900;'>FIFA<br>Predict</h1>"
+        "<p style='color:#737373; font-size:0.75rem; margin-top:0.25rem; font-family:\"JetBrains Mono\",monospace; text-transform:uppercase; letter-spacing:0.1em;'>"
+        "Dixon-Coles Poisson + Dynamic ELO + Ensemble</p>",
         unsafe_allow_html=True,
     )
-    st.divider()
+    st.markdown("<hr style='margin:1rem 0;'>", unsafe_allow_html=True)
 
     match = get_match()
     matches = st.session_state["matches"]
@@ -142,8 +211,8 @@ with st.sidebar:
 
     bankroll = st.number_input("Bankroll ($)", value=1000, step=100)
 
-    st.divider()
-    st.markdown("#### Betting Simulator")
+    st.markdown("<hr style='margin:1rem 0;'>", unsafe_allow_html=True)
+    st.markdown("<p class='section-label'>Betting Simulator</p>", unsafe_allow_html=True)
     if "active_bet" in st.session_state:
         ab = st.session_state["active_bet"]
         st.info(f"Active: {ab['outcome_label']} @ ${ab['stake']:.0f}")
@@ -173,8 +242,8 @@ with st.sidebar:
             else:
                 st.error("Waiting for prediction data...")
 
-    st.divider()
-    st.caption("Auto-refresh every 30s")
+    st.markdown("<hr style='margin:1rem 0;'>", unsafe_allow_html=True)
+    st.markdown("<p style='font-family:\"JetBrains Mono\",monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.15em; color:#737373;'>Auto-refresh every 30s</p>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     with col1:
         if st.button("Refresh", use_container_width=True):
@@ -262,20 +331,18 @@ with col_hdr:
     if is_live and live_data.get("live"):
         ld = live_data
         st.markdown(
-            f"<div style='display:flex;align-items:center;gap:1rem;'>"
-            f"<span style='background:#FF1744;width:12px;height:12px;border-radius:50%;display:inline-block;animation:pulse 1.5s infinite;'></span>"
-            f"<h2 style='margin:0;'>{team_a} vs {team_b}</h2>"
-            f"<span style='font-size:1.5rem;font-weight:700;color:#FF5252;'>"
-            f"{ld['score_a']} — {ld['score_b']}</span>"
-            f"<span style='color:#8892A4;'>{ld['minute']}'</span>"
-            f"<style>@keyframes pulse {{ 0%,100% {{ opacity:1; }} 50% {{ opacity:0.3; }} }}</style>"
+            f"<div style='display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;'>"
+            f"<span class='live-dot'></span>"
+            f"<h2 style='margin:0; font-size:2.5rem;'>{team_a} vs {team_b}</h2>"
+            f"<span class='badge badge-red'>LIVE {ld['minute']}'</span>"
+            f"<span style='font-family:\"Playfair Display\",serif; font-size:2rem; font-weight:700;'>{ld['score_a']}–{ld['score_b']}</span>"
             f"</div>",
             unsafe_allow_html=True,
         )
     else:
         st.markdown(
-            f"<h2 style='margin:0;'>{team_a} vs {team_b}</h2>"
-            f"<p style='color:#8892A4;margin:0;'>{venue_str} | {competition}</p>",
+            f"<h2 style='margin:0; font-size:2.5rem;'>{team_a} vs {team_b}</h2>"
+            f"<p style='color:#737373;margin:0.25rem 0; font-family:\"JetBrains Mono\",monospace; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em;'>{venue_str} | {competition}</p>",
             unsafe_allow_html=True,
         )
 
@@ -291,9 +358,9 @@ with col_live:
                 hrs = int(delta.total_seconds() // 3600)
                 mins = int((delta.total_seconds() % 3600) // 60)
                 st.markdown(
-                    f"<div style='text-align:right;'>"
-                    f"<span style='color:#8892A4;font-size:0.8rem;'>Kick-off in</span><br>"
-                    f"<span style='font-size:1.8rem;font-weight:700;color:#00B4D8;'>{hrs}h {mins}m</span>"
+                    f"<div style='text-align:right; border:2px solid #111111; padding:0.75rem 1rem;'>"
+                    f"<span style='font-family:\"JetBrains Mono\",monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.15em; color:#737373;'>Kick-off in</span><br>"
+                    f"<span style='font-family:\"Playfair Display\",serif; font-size:1.8rem; font-weight:900;'>{hrs}h {mins}m</span>"
                     f"</div>",
                     unsafe_allow_html=True,
                 )
@@ -304,6 +371,7 @@ with col_live:
 # ── PROBABILITY CARDS ────────────────────────────────────────────────────────
 
 st.markdown("<hr>", unsafe_allow_html=True)
+st.markdown("<p class='section-label'>Prediction</p>", unsafe_allow_html=True)
 st.markdown("<h3>Win Probability</h3>", unsafe_allow_html=True)
 
 conf = probs.get("confidence", "MEDIUM")
@@ -318,18 +386,12 @@ conf_class = {
 col_a, col_d, col_b = st.columns(3)
 with col_a:
     pct_a = probs["a_win"]
-    color_a = "#00E676" if pct_a > 50 else "#4FC3F7" if pct_a > 35 else "#8892A4"
     st.markdown(
-        f"<div class='prob-card' style='background:linear-gradient(135deg,#0D47A122,#1565C022);border:1px solid #1565C044;'>"
-        f"<div class='prob-value' style='color:{color_a};'>{pct_a:.1f}%</div>"
-        f"<div class='prob-label'>{team_a} Win</div>"
-        f"<div style='margin-top:0.5rem;height:6px;background:#2C2F36;border-radius:3px;'>"
-        f"<div style='height:100%;width:{min(pct_a,100)}%;background:linear-gradient(90deg,#1565C0,#42A5F5);border-radius:3px;'></div>"
-        f"</div>"
-        f"<div style='margin-top:0.3rem;display:flex;justify-content:space-between;font-size:0.7rem;color:#8892A4;'>"
-        f"<span>xG: {probs.get('xg_a','-')}</span>"
-        f"<span>ELO: {elo.get('elo_a',0):.0f}</span>"
-        f"</div>"
+        f"<div class='prob-card'>"
+        f"<div class='prob-card-title'>{team_a}</div>"
+        f"<div class='prob-value'>{pct_a:.1f}%</div>"
+        f"<div class='prob-bar'><div class='prob-bar-fill' style='width:{min(pct_a,100)}%;'></div></div>"
+        f"<div class='prob-meta'><span>xG: {probs.get('xg_a','-')}</span><span>ELO: {elo.get('elo_a',0):.0f}</span></div>"
         f"</div>",
         unsafe_allow_html=True,
     )
@@ -337,55 +399,43 @@ with col_a:
 with col_d:
     pct_d = probs["draw"]
     st.markdown(
-        f"<div class='prob-card' style='background:linear-gradient(135deg,#F57F1722,#F57F1711);border:1px solid #F57F1744;'>"
-        f"<div class='prob-value' style='color:#FFD740;'>{pct_d:.1f}%</div>"
-        f"<div class='prob-label'>Draw</div>"
-        f"<div style='margin-top:0.5rem;height:6px;background:#2C2F36;border-radius:3px;'>"
-        f"<div style='height:100%;width:{min(pct_d,100)}%;background:linear-gradient(90deg,#F57F17,#FFD740);border-radius:3px;'></div>"
-        f"</div>"
-        f"<div style='margin-top:0.3rem;font-size:0.7rem;color:#8892A4;'>"
-        f"<span>{probs.get('predicted_winner','?')}</span>"
-        f"</div>"
+        f"<div class='prob-card'>"
+        f"<div class='prob-card-title'>Draw</div>"
+        f"<div class='prob-value'>{pct_d:.1f}%</div>"
+        f"<div class='prob-bar'><div class='prob-bar-fill' style='width:{min(pct_d,100)}%;'></div></div>"
+        f"<div class='prob-meta'><span>{probs.get('predicted_winner','?')}</span></div>"
         f"</div>",
         unsafe_allow_html=True,
     )
 
 with col_b:
     pct_b = probs["b_win"]
-    color_b = "#FF5252" if pct_b > 50 else "#EF5350" if pct_b > 35 else "#8892A4"
     st.markdown(
-        f"<div class='prob-card' style='background:linear-gradient(135deg,#B71C1C22,#C6282822);border:1px solid #C6282844;'>"
-        f"<div class='prob-value' style='color:{color_b};'>{pct_b:.1f}%</div>"
-        f"<div class='prob-label'>{team_b} Win</div>"
-        f"<div style='margin-top:0.5rem;height:6px;background:#2C2F36;border-radius:3px;'>"
-        f"<div style='height:100%;width:{min(pct_b,100)}%;background:linear-gradient(90deg,#C62828,#EF5350);border-radius:3px;'></div>"
-        f"</div>"
-        f"<div style='margin-top:0.3rem;display:flex;justify-content:space-between;font-size:0.7rem;color:#8892A4;'>"
-        f"<span>xG: {probs.get('xg_b','-')}</span>"
-        f"<span>ELO: {elo.get('elo_b',0):.0f}</span>"
-        f"</div>"
+        f"<div class='prob-card'>"
+        f"<div class='prob-card-title'>{team_b}</div>"
+        f"<div class='prob-value'>{pct_b:.1f}%</div>"
+        f"<div class='prob-bar'><div class='prob-bar-fill' style='width:{min(pct_b,100)}%;'></div></div>"
+        f"<div class='prob-meta'><span>xG: {probs.get('xg_b','-')}</span><span>ELO: {elo.get('elo_b',0):.0f}</span></div>"
         f"</div>",
         unsafe_allow_html=True,
     )
 
-conf_icons = {
-    "VERY HIGH": "🟢", "HIGH": "🟢", "MEDIUM": "🟡",
-    "LOW": "🟠", "COINFLIP": "🔴",
-}
 st.markdown(
-    f"<div style='text-align:center;padding:0.5rem;'>"
-    f"<span class='{conf_class}'>{conf_icons.get(conf, '⚪')} Confidence: {conf}</span>"
-    f"<span style='color:#8892A4;margin-left:2rem;'>"
-    f"Predicted: {probs.get('xg_a','-')}–{probs.get('xg_b','-')}</span>"
-    f"<span style='color:#8892A4;margin-left:2rem;'>ELO gap: {probs.get('elo_diff',0):+.0f}</span>"
+    f"<div style='text-align:center; padding:0.75rem; border:1px solid #111111; margin-top:0.5rem;'>"
+    f"<span class='{conf_class}'>{'●' if conf in ('VERY HIGH','HIGH') else '◐' if conf == 'MEDIUM' else '○' if conf == 'LOW' else '◉'} Confidence: {conf}</span>"
+    f"<span style='color:#737373; margin-left:1.5rem; font-family:\"JetBrains Mono\",monospace; font-size:0.7rem;'>Predicted: {probs.get('xg_a','-')}–{probs.get('xg_b','-')}</span>"
+    f"<span style='color:#737373; margin-left:1.5rem; font-family:\"JetBrains Mono\",monospace; font-size:0.7rem;'>ELO gap: {probs.get('elo_diff',0):+.0f}</span>"
     f"</div>",
     unsafe_allow_html=True,
 )
+
+st.markdown("<div class='ornament'>✦ ✦ ✦</div>", unsafe_allow_html=True)
 
 
 # ── MODEL vs MARKET ──────────────────────────────────────────────────────────
 
 st.markdown("<hr>", unsafe_allow_html=True)
+st.markdown("<p class='section-label'>Benchmarking</p>", unsafe_allow_html=True)
 st.markdown("<h3>Model vs Market</h3>", unsafe_allow_html=True)
 
 col_chart, col_meta = st.columns([3, 1])
@@ -395,8 +445,9 @@ with col_chart:
         name="Our Model",
         x=[team_a, "Draw", team_b],
         y=[probs["a_win"], probs["draw"], probs["b_win"]],
-        marker_color=["#42A5F5", "#FFD740", "#EF5350"],
+        marker_color=["#111111", "#737373", "#111111"],
         opacity=0.85,
+        marker_pattern_shape="/",
     ))
     fig.add_trace(go.Bar(
         name=f"Market ({market.get('source', 'Odds')})",
@@ -406,8 +457,8 @@ with col_chart:
             market["implied_d"] * 100,
             market["implied_b"] * 100,
         ],
-        marker_color=["#1A237E", "#F57F17", "#B71C1C"],
-        opacity=0.6,
+        marker_color=["#E5E5E0", "#E5E5E0", "#E5E5E0"],
+        opacity=1,
     ))
     if poly_prices and "poly_a" in poly_prices:
         fig.add_trace(go.Scatter(
@@ -419,7 +470,7 @@ with col_chart:
                 poly_prices.get("poly_b", 0) * 100,
             ],
             mode="markers",
-            marker=dict(color="#00E676", size=14, symbol="diamond"),
+            marker=dict(color="#CC0000", size=12, symbol="diamond"),
         ))
     fig.update_layout(
         barmode="group",
@@ -427,32 +478,33 @@ with col_chart:
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="rgba(0,0,0,0)",
         height=320,
-        font=dict(color="#E0E0E0"),
+        font=dict(color="#111111", family="Inter, sans-serif"),
         margin=dict(l=0, r=0, t=10, b=0),
-        legend=dict(orientation="h", y=1.1),
+        legend=dict(orientation="h", y=1.1, font=dict(size=11)),
         hovermode="x unified",
+        bargap=0.15,
     )
-    fig.update_xaxes(gridcolor="#2C2F36")
-    fig.update_yaxes(gridcolor="#2C2F36", range=[0, 100])
+    fig.update_xaxes(gridcolor="#E5E5E0", tickfont=dict(family="Playfair Display, serif", size=13))
+    fig.update_yaxes(gridcolor="#E5E5E0", range=[0, 100])
     st.plotly_chart(fig, use_container_width=True)
 
 with col_meta:
     if poly_prices:
         st.markdown(
-            f"<div style='background:#1A1D24;border:1px solid #00E67644;border-radius:10px;padding:1rem;'>"
-            f"<p style='color:#00E676;font-weight:600;margin:0;'>Polymarket</p>"
-            f"<p style='font-size:0.8rem;color:#8892A4;'>{poly_prices.get('market_title', '')[:40]}</p>"
-            f"<p>{team_a}: <strong>{poly_prices.get('poly_a',0)*100:.1f}%</strong></p>"
-            f"<p>Draw: <strong>{poly_prices.get('poly_draw',0)*100:.1f}%</strong></p>"
-            f"<p>{team_b}: <strong>{poly_prices.get('poly_b',0)*100:.1f}%</strong></p>"
+            f"<div style='border:1px solid #111111;padding:1rem;'>"
+            f"<p style='font-family:\"JetBrains Mono\",monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.15em; color:#CC0000; font-weight:600; margin:0;'>Polymarket</p>"
+            f"<p style='font-size:0.7rem;color:#737373; font-family:\"Inter\",sans-serif;'>{poly_prices.get('market_title', '')[:40]}</p>"
+            f"<p style='font-family:\"JetBrains Mono\",monospace; font-size:0.8rem;'>{team_a}: <strong>{poly_prices.get('poly_a',0)*100:.1f}%</strong></p>"
+            f"<p style='font-family:\"JetBrains Mono\",monospace; font-size:0.8rem;'>Draw: <strong>{poly_prices.get('poly_draw',0)*100:.1f}%</strong></p>"
+            f"<p style='font-family:\"JetBrains Mono\",monospace; font-size:0.8rem;'>{team_b}: <strong>{poly_prices.get('poly_b',0)*100:.1f}%</strong></p>"
             f"</div>",
             unsafe_allow_html=True,
         )
     else:
         st.markdown(
-            f"<div style='background:#1A1D24;border:1px solid #2C2F36;border-radius:10px;padding:1rem;text-align:center;'>"
-            f"<p style='color:#8892A4;'>Polymarket data</p>"
-            f"<p style='color:#8892A4;font-size:0.8rem;'>not available</p>"
+            f"<div style='border:1px solid #E5E5E0;padding:1rem;text-align:center;'>"
+            f"<p style='color:#737373; font-family:\"JetBrains Mono\",monospace; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.1em;'>Polymarket</p>"
+            f"<p style='color:#A3A3A3; font-family:\"Inter\",sans-serif; font-size:0.75rem;'>Not available</p>"
             f"</div>",
             unsafe_allow_html=True,
         )
@@ -461,7 +513,8 @@ with col_meta:
 # ── EV + KELLY ───────────────────────────────────────────────────────────────
 
 st.markdown("<hr>", unsafe_allow_html=True)
-st.markdown("<h3>Expected Value & Kelly Stake</h3>", unsafe_allow_html=True)
+st.markdown("<p class='section-label'>Edge Analysis</p>", unsafe_allow_html=True)
+st.markdown("<h3>Expected Value &amp; Kelly Stake</h3>", unsafe_allow_html=True)
 
 c1, c2, c3 = st.columns(3)
 for col, label, ev_val, kelly_val in [
@@ -469,14 +522,12 @@ for col, label, ev_val, kelly_val in [
     (c2, "Draw", ev["ev_d"], ev["kelly_d"]),
     (c3, team_b, ev["ev_b"], ev["kelly_b"]),
 ]:
-    icon = "🟢" if ev_val > 3 else "🔴" if ev_val < 0 else "🟡"
+    ev_sign = "+" if ev_val > 3 else "-" if ev_val < 0 else "±"
     col.markdown(
-        f"<div style='background:#1A1D24;border:1px solid #2C2F36;border-radius:10px;padding:1rem;text-align:center;'>"
-        f"<div style='font-size:1.2rem;font-weight:600;'>{icon} {label}</div>"
-        f"<div style='font-size:2rem;font-weight:700;margin:0.25rem 0;'>"
-        f"{'<span style=\"color:#00E676\">' if ev_val > 3 else '<span style=\"color:#FF5252\">' if ev_val < 0 else '<span style=\"color:#FFD740\">'}"
-        f"EV: {ev_val:+.1f}%</span></div>"
-        f"<div style='color:#8892A4;font-size:0.9rem;'>Kelly: {kelly_val:.1f}%</div>"
+        f"<div class='ev-card'>"
+        f"<div class='ev-label'>{label}</div>"
+        f"<div class='ev-value'>{ev_sign} {abs(ev_val):.1f}%</div>"
+        f"<div class='ev-sub'>Kelly: {kelly_val:.1f}%</div>"
         f"</div>",
         unsafe_allow_html=True,
     )
@@ -484,36 +535,51 @@ for col, label, ev_val, kelly_val in [
 if ev.get("recommended"):
     bet_map = {"team_a": team_a, "draw": "Draw", "team_b": team_b}
     stake_dollars = bankroll * ev["recommended_stake_pct"] / 100
-    st.success(
-        f"**BET: {bet_map[ev['recommended']]}** | "
-        f"Stake: {ev['recommended_stake_pct']:.1f}% = **${stake_dollars:.0f}**"
+    st.markdown(
+        f"<div style='border:2px solid #111111; padding:0.75rem 1rem; margin-top:0.5rem; background:#111111; color:#F9F9F7;'>"
+        f"<p style='margin:0; font-family:\"JetBrains Mono\",monospace; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em;'>"
+        f"<strong>RECOMMENDED BET:</strong> {bet_map[ev['recommended']]} | "
+        f"Stake: {ev['recommended_stake_pct']:.1f}% = <strong>${stake_dollars:.0f}</strong></p>"
+        f"</div>",
+        unsafe_allow_html=True,
     )
 else:
-    st.error("No +EV bet found")
+    st.markdown(
+        f"<div style='border:1px solid #CC0000; padding:0.75rem 1rem; margin-top:0.5rem;'>"
+        f"<p style='margin:0; font-family:\"JetBrains Mono\",monospace; font-size:0.75rem; color:#CC0000;'>No +EV bet found</p>"
+        f"</div>",
+        unsafe_allow_html=True,
+    )
 
 if ev.get("fav_warning"):
-    st.warning(ev["fav_warning"])
+    st.markdown(
+        f"<div style='border:1px solid #111111; padding:0.5rem 1rem; margin-top:0.25rem; background:#F5F5F5;'>"
+        f"<p style='margin:0; font-family:\"JetBrains Mono\",monospace; font-size:0.7rem; color:#737373;'>{ev['fav_warning']}</p>"
+        f"</div>",
+        unsafe_allow_html=True,
+    )
 
 
 # ── PROBABILITY MOVEMENT ─────────────────────────────────────────────────────
 
 if len(st.session_state["prob_history"]) >= 2:
     st.markdown("<hr>", unsafe_allow_html=True)
+    st.markdown("<p class='section-label'>Live Tracking</p>", unsafe_allow_html=True)
     st.markdown("<h3>Probability Movement</h3>", unsafe_allow_html=True)
     hist = st.session_state["prob_history"]
     mins = [h["minute"] for h in hist]
     fig_p = go.Figure()
     fig_p.add_trace(go.Scatter(
         x=mins, y=[h["a"] for h in hist], mode="lines",
-        name=team_a, line=dict(color="#42A5F5", width=3),
+        name=team_a, line=dict(color="#111111", width=3),
     ))
     fig_p.add_trace(go.Scatter(
         x=mins, y=[h["d"] for h in hist], mode="lines",
-        name="Draw", line=dict(color="#FFD740", width=2, dash="dot"),
+        name="Draw", line=dict(color="#737373", width=2, dash="dot"),
     ))
     fig_p.add_trace(go.Scatter(
         x=mins, y=[h["b"] for h in hist], mode="lines",
-        name=team_b, line=dict(color="#EF5350", width=3),
+        name=team_b, line=dict(color="#A3A3A3", width=3, dash="dash"),
     ))
     fig_p.update_layout(
         title="",
@@ -522,19 +588,20 @@ if len(st.session_state["prob_history"]) >= 2:
         plot_bgcolor="rgba(0,0,0,0)",
         paper_bgcolor="rgba(0,0,0,0)",
         height=250,
-        font=dict(color="#E0E0E0"),
+        font=dict(color="#111111", family="Inter, sans-serif"),
         margin=dict(l=0, r=0, t=10, b=0),
         hovermode="x unified",
         legend=dict(orientation="h", y=1.1),
     )
-    fig_p.update_xaxes(gridcolor="#2C2F36")
-    fig_p.update_yaxes(gridcolor="#2C2F36")
+    fig_p.update_xaxes(gridcolor="#E5E5E0")
+    fig_p.update_yaxes(gridcolor="#E5E5E0")
     st.plotly_chart(fig_p, use_container_width=True)
 
 
 # ── FEATURE BREAKDOWN ────────────────────────────────────────────────────────
 
 st.markdown("<hr>", unsafe_allow_html=True)
+st.markdown("<p class='section-label'>Deep Dive</p>", unsafe_allow_html=True)
 st.markdown("<h3>Feature Contribution Analysis</h3>", unsafe_allow_html=True)
 features = feat_analysis.get("features", [])
 if features:
@@ -545,41 +612,35 @@ if features:
     )
     col_f1, col_f2 = st.columns([2, 1])
     with col_f1:
-        for f in features_sorted[:7]:
+        for i, f in enumerate(features_sorted[:7]):
             fscore = f.get("score_a", 0) - f.get("score_b", 0)
-            icon = "🟢" if fscore > 1 else "🔴" if fscore < -1 else "⚪"
             label = score_to_label(fscore)
             pct = min(1.0, abs(fscore) / 10)
-            bar_color = (
-                "linear-gradient(90deg,#00E676,#69F0AE)"
-                if fscore > 0
-                else "linear-gradient(90deg,#FF5252,#FF8A80)"
-                if fscore < 0
-                else "linear-gradient(90deg,#8892A4,#B0BEC5)"
-            )
+            is_pos = fscore > 0
+            is_neg = fscore < 0
+            bar_fill_color = "#111111" if is_pos else "#CC0000" if is_neg else "#E5E5E0"
+            first_letter = f['finding'][0] if f['finding'] else 'T'
+            rest_text = f['finding'][1:121] if f['finding'] else ''
+            dropcap = f"<span class='dropcap'>{first_letter}</span>{rest_text}..." if i == 0 else f['finding'][:120] + '...'
             st.markdown(
-                f"<div style='margin-bottom:0.75rem;'>"
-                f"<div style='display:flex;justify-content:space-between;'>"
-                f"<span>{icon} <strong>{f['name']}</strong> — {label}</span>"
-                f"<span style='color:#8892A4;'>{fscore:+.1f}/10</span>"
+                f"<div style='margin-bottom:0.75rem; border-bottom:1px solid #E5E5E0; padding-bottom:0.5rem;'>"
+                f"<div style='display:flex;justify-content:space-between; font-family:\"Inter\",sans-serif; font-size:0.8rem;'>"
+                f"<span><strong>{f['name']}</strong> — {label}</span>"
+                f"<span style='font-family:\"JetBrains Mono\",monospace; color:#737373;'>{fscore:+.1f}/10</span>"
                 f"</div>"
-                f"<div style='height:4px;background:#2C2F36;border-radius:2px;margin-top:0.25rem;'>"
-                f"<div style='height:100%;width:{pct*100}%;background:{bar_color};border-radius:2px;'></div>"
-                f"</div>"
-                f"<div style='font-size:0.75rem;color:#8892A4;margin-top:0.2rem;'>{f['finding'][:120]}...</div>"
+                f"<div class='feature-bar'><div style='height:100%;width:{pct*100}%;background:{bar_fill_color};'></div></div>"
+                f"<div style='font-family:\"Inter\",sans-serif; font-size:0.7rem; color:#737373; margin-top:0.2rem;'>{dropcap}</div>"
                 f"</div>",
                 unsafe_allow_html=True,
             )
     with col_f2:
         overall = feat_analysis["net_score"]
-        overall_color = "#00E676" if overall > 2 else "#FF5252" if overall < -2 else "#FFD740"
         st.markdown(
-            f"<div style='background:#1A1D24;border:1px solid #2C2F36;border-radius:10px;padding:1rem;text-align:center;'>"
-            f"<div style='font-size:0.8rem;color:#8892A4;'>Overall Feature Score</div>"
-            f"<div style='font-size:2.5rem;font-weight:700;color:{overall_color};'>{overall:+.1f}</div>"
-            f"<div style='color:#8892A4;font-size:0.75rem;'>"
-            f"Favours {team_a if overall > 0.5 else team_b if overall < -0.5 else 'Neither'}"
-            f"</div>"
+            f"<div style='border:2px solid #111111; padding:1.5rem; text-align:center;'>"
+            f"<p style='font-family:\"JetBrains Mono\",monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.15em; color:#737373; margin:0;'>Overall Score</p>"
+            f"<div style='font-family:\"Playfair Display\",serif; font-size:2.5rem; font-weight:900; margin:0.25rem 0;'>{overall:+.1f}</div>"
+            f"<p style='font-family:\"Inter\",sans-serif; font-size:0.75rem; color:#737373; margin:0;'>"
+            f"Favours {team_a if overall > 0.5 else team_b if overall < -0.5 else 'Neither'}</p>"
             f"</div>",
             unsafe_allow_html=True,
         )
@@ -593,76 +654,78 @@ if features:
             if f.get("direction") == "B" and f.get("score_b", 0) > 1
         ][:3]
         if top_a:
-            st.markdown(f"**{team_a} advantages:**")
+            st.markdown(f"<p style='font-family:\"Inter\",sans-serif; font-size:0.8rem; font-weight:600; margin-top:0.75rem;'>{team_a} advantages:</p>", unsafe_allow_html=True)
             for f in top_a:
-                st.markdown(f"- {f['name']}")
+                st.markdown(f"<p style='font-family:\"JetBrains Mono\",monospace; font-size:0.7rem; margin:0.15rem 0;'>— {f['name']}</p>", unsafe_allow_html=True)
         if top_b:
-            st.markdown(f"**{team_b} advantages:**")
+            st.markdown(f"<p style='font-family:\"Inter\",sans-serif; font-size:0.8rem; font-weight:600; margin-top:0.75rem;'>{team_b} advantages:</p>", unsafe_allow_html=True)
             for f in top_b:
-                st.markdown(f"- {f['name']}")
+                st.markdown(f"<p style='font-family:\"JetBrains Mono\",monospace; font-size:0.7rem; margin:0.15rem 0;'>— {f['name']}</p>", unsafe_allow_html=True)
 
         draw_feat = next(
             (f for f in features if "Draw Tendency" in f.get("name", "")),
             None,
         )
         if draw_feat:
-            st.info(f"Draw Signal: {draw_feat['finding'].split('. ')[-1]}")
+            st.markdown(f"<div style='border:1px solid #111111; padding:0.5rem; margin-top:0.75rem; font-family:\"JetBrains Mono\",monospace; font-size:0.7rem;'>{draw_feat['finding'].split('. ')[-1]}</div>", unsafe_allow_html=True)
 
 
 # ── SIGNALS ──────────────────────────────────────────────────────────────────
 
 st.markdown("<hr>", unsafe_allow_html=True)
+st.markdown("<p class='section-label'>Context</p>", unsafe_allow_html=True)
 st.markdown("<h3>Contextual Signals</h3>", unsafe_allow_html=True)
 active = [s for s in sigs["signals"] if s.get("impact", 0) > 0]
 if active:
     for s in active:
-        icon = "🟢" if s["direction"] == "advantage" else "🔴" if s["direction"] == "disadvantage" else "⚪"
+        icon = "▲" if s["direction"] == "advantage" else "▼" if s["direction"] == "disadvantage" else "◆"
         team_label = team_a if s["team"] == "A" else team_b
         direction_text = "Advantage" if s["direction"] == "advantage" else "Disadvantage" if s["direction"] == "disadvantage" else "Neutral"
-        impact_stars = "⭐" * s["impact"]
+        impact_marks = "●" * s["impact"]
         st.markdown(
-            f"<div style='background:#1A1D24;border:1px solid #2C2F36;border-radius:8px;padding:0.75rem 1rem;margin-bottom:0.5rem;'>"
-            f"<div style='display:flex;justify-content:space-between;'>"
+            f"<div class='signal-card'>"
+            f"<div style='display:flex;justify-content:space-between; font-family:\"Inter\",sans-serif; font-size:0.85rem;'>"
             f"<span>{icon} <strong>{s['name']}</strong> — {team_label} | {direction_text}</span>"
-            f"<span style='color:#FFD740;'>{impact_stars}</span>"
+            f"<span style='color:#111111; font-family:\"JetBrains Mono\",monospace; font-size:0.7rem;'>{impact_marks}</span>"
             f"</div>"
-            f"<div style='font-size:0.8rem;color:#8892A4;margin-top:0.25rem;'>{s['finding']}</div>"
+            f"<div style='font-family:\"Inter\",sans-serif; font-size:0.75rem; color:#737373; margin-top:0.25rem;'>{s['finding']}</div>"
             f"</div>",
             unsafe_allow_html=True,
         )
 else:
-    st.info("No strong contextual signals for this match.")
+    st.markdown("<div style='border:1px solid #E5E5E0; padding:0.75rem; font-family:\"Inter\",sans-serif; font-size:0.8rem; color:#737373;'>No strong contextual signals for this match.</div>", unsafe_allow_html=True)
 
 
 # ── BASELINE STATS ───────────────────────────────────────────────────────────
 
 st.markdown("<hr>", unsafe_allow_html=True)
+st.markdown("<p class='section-label'>Data</p>", unsafe_allow_html=True)
 st.markdown("<h3>Baseline Statistics</h3>", unsafe_allow_html=True)
 col_s1, col_s2, col_s3 = st.columns(3)
 with col_s1:
     st.markdown(
-        f"<div style='background:#1A1D24;border:1px solid #2C2F36;border-radius:10px;padding:1rem;'>"
-        f"<p style='color:#8892A4;font-size:0.8rem;margin:0;'>Recent Form</p>"
-        f"<p style='font-size:1.1rem;margin:0.25rem 0;'>{team_a}: {form_a.get('form_str','N/A')}</p>"
-        f"<p style='font-size:1.1rem;margin:0;'>{team_b}: {form_b.get('form_str','N/A')}</p>"
+        f"<div class='stat-card'>"
+        f"<p class='stat-label'>Recent Form</p>"
+        f"<p class='stat-value'>{team_a}: {form_a.get('form_str','N/A')}</p>"
+        f"<p class='stat-value'>{team_b}: {form_b.get('form_str','N/A')}</p>"
         f"</div>",
         unsafe_allow_html=True,
     )
 with col_s2:
     st.markdown(
-        f"<div style='background:#1A1D24;border:1px solid #2C2F36;border-radius:10px;padding:1rem;'>"
-        f"<p style='color:#8892A4;font-size:0.8rem;margin:0;'>Avg Goals (last 5)</p>"
-        f"<p style='font-size:1.1rem;margin:0.25rem 0;'>{team_a}: ⚽{form_a.get('goals_scored_5',0):.2f} — 🛡️{form_a.get('goals_conceded_5',0):.2f}</p>"
-        f"<p style='font-size:1.1rem;margin:0;'>{team_b}: ⚽{form_b.get('goals_scored_5',0):.2f} — 🛡️{form_b.get('goals_conceded_5',0):.2f}</p>"
+        f"<div class='stat-card'>"
+        f"<p class='stat-label'>Avg Goals (last 5)</p>"
+        f"<p class='stat-value'>{team_a}: {form_a.get('goals_scored_5',0):.2f} — {form_a.get('goals_conceded_5',0):.2f}</p>"
+        f"<p class='stat-value'>{team_b}: {form_b.get('goals_scored_5',0):.2f} — {form_b.get('goals_conceded_5',0):.2f}</p>"
         f"</div>",
         unsafe_allow_html=True,
     )
 with col_s3:
     st.markdown(
-        f"<div style='background:#1A1D24;border:1px solid #2C2F36;border-radius:10px;padding:1rem;'>"
-        f"<p style='color:#8892A4;font-size:0.8rem;margin:0;'>H2H (last {h2h['total']})</p>"
-        f"<p style='font-size:1.1rem;margin:0.25rem 0;'>{team_a}: {h2h['a_wins']}W — {h2h['draws']}D — {h2h['b_wins']}W :{team_b}</p>"
-        f"<p style='color:#8892A4;font-size:0.8rem;margin:0;'>ELO: {get_elo(team_a):.0f} vs {get_elo(team_b):.0f}</p>"
+        f"<div class='stat-card'>"
+        f"<p class='stat-label'>Head-to-Head (last {h2h['total']})</p>"
+        f"<p class='stat-value'>{team_a}: {h2h['a_wins']}W — {h2h['draws']}D — {h2h['b_wins']}W :{team_b}</p>"
+        f"<p class='stat-sub'>ELO: {get_elo(team_a):.0f} vs {get_elo(team_b):.0f}</p>"
         f"</div>",
         unsafe_allow_html=True,
     )
@@ -695,39 +758,39 @@ if "active_bet" in st.session_state:
         st.session_state["bet_value_history"] = st.session_state["bet_value_history"][-100:]
 
     st.markdown("<hr>", unsafe_allow_html=True)
+    st.markdown("<p class='section-label'>Portfolio</p>", unsafe_allow_html=True)
     st.markdown("<h3>Virtual Bet Dashboard</h3>", unsafe_allow_html=True)
 
     col_b1, col_b2, col_b3, col_b4 = st.columns(4)
     col_b1.markdown(
-        f"<div style='background:#1A1D24;border:1px solid #2C2F36;border-radius:10px;padding:1rem;text-align:center;'>"
-        f"<div style='font-size:0.8rem;color:#8892A4;'>Bet On</div>"
-        f"<div style='font-size:1.3rem;font-weight:600;'>{bet['outcome_label']}</div>"
-        f"<div style='font-size:0.9rem;color:#8892A4;'>@ {bet['odds']:.2f}</div>"
+        f"<div class='ev-card'>"
+        f"<div class='ev-label'>Bet On</div>"
+        f"<div class='stat-value'>{bet['outcome_label']}</div>"
+        f"<div class='ev-sub'>@ {bet['odds']:.2f}</div>"
         f"</div>",
         unsafe_allow_html=True,
     )
     col_b2.markdown(
-        f"<div style='background:#1A1D24;border:1px solid #2C2F36;border-radius:10px;padding:1rem;text-align:center;'>"
-        f"<div style='font-size:0.8rem;color:#8892A4;'>Stake / Payout</div>"
-        f"<div style='font-size:1.3rem;font-weight:600;'>${bet['stake']:.0f}</div>"
-        f"<div style='font-size:0.9rem;color:#8892A4;'>→ ${bet['potential_payout']:.2f}</div>"
+        f"<div class='ev-card'>"
+        f"<div class='ev-label'>Stake / Payout</div>"
+        f"<div class='stat-value'>${bet['stake']:.0f}</div>"
+        f"<div class='ev-sub'>→ ${bet['potential_payout']:.2f}</div>"
         f"</div>",
         unsafe_allow_html=True,
     )
-    pnl_clr = '#00E676' if bet_value['pnl'] >= 0 else '#FF5252'
     col_b3.markdown(
-        f"<div style='background:#1A1D24;border:1px solid #2C2F36;border-radius:10px;padding:1rem;text-align:center;'>"
-        f"<div style='font-size:0.8rem;color:#8892A4;'>Current Value</div>"
-        f"<div style='font-size:1.3rem;font-weight:600;'>${bet_value['current_value']:.2f}</div>"
-        f"<div style='font-size:0.9rem;color:{pnl_clr};'>${bet_value['pnl']:+.2f}</div>"
+        f"<div class='ev-card'>"
+        f"<div class='ev-label'>Current Value</div>"
+        f"<div class='stat-value'>${bet_value['current_value']:.2f}</div>"
+        f"<div class='ev-sub'>${bet_value['pnl']:+.2f}</div>"
         f"</div>",
         unsafe_allow_html=True,
     )
     col_b4.markdown(
-        f"<div style='background:#1A1D24;border:1px solid #2C2F36;border-radius:10px;padding:1rem;text-align:center;'>"
-        f"<div style='font-size:0.8rem;color:#8892A4;'>Cash-out / Prob</div>"
-        f"<div style='font-size:1.3rem;font-weight:600;'>${cashout_value:.2f}</div>"
-        f"<div style='font-size:0.9rem;color:#8892A4;'>Model: {current_prob*100:.1f}%</div>"
+        f"<div class='ev-card'>"
+        f"<div class='ev-label'>Cash-out / Prob</div>"
+        f"<div class='stat-value'>${cashout_value:.2f}</div>"
+        f"<div class='ev-sub'>Model: {current_prob*100:.1f}%</div>"
         f"</div>",
         unsafe_allow_html=True,
     )
@@ -740,14 +803,14 @@ if "active_bet" in st.session_state:
             y=[h["value"] for h in hist_b],
             mode="lines+markers",
             name="Bet Value",
-            line=dict(color="#F39C12", width=3),
+            line=dict(color="#111111", width=2),
             fill="tozeroy",
-            fillcolor="rgba(243, 156, 18, 0.05)",
+            fillcolor="rgba(17, 17, 17, 0.04)",
         ))
         fig_bet.add_hline(
             y=bet["stake"],
             line_dash="dash",
-            line_color="#7F8C8D",
+            line_color="#737373",
             annotation_text=f"Stake: ${bet['stake']:.0f}",
         )
         fig_bet.update_layout(
@@ -757,11 +820,11 @@ if "active_bet" in st.session_state:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             height=220,
-            font=dict(color="#E0E0E0"),
+            font=dict(color="#111111", family="Inter, sans-serif"),
             margin=dict(l=0, r=0, t=10, b=0),
         )
-        fig_bet.update_xaxes(gridcolor="#2C2F36")
-        fig_bet.update_yaxes(gridcolor="#2C2F36")
+        fig_bet.update_xaxes(gridcolor="#E5E5E0")
+        fig_bet.update_yaxes(gridcolor="#E5E5E0")
         st.plotly_chart(fig_bet, use_container_width=True)
 
 
@@ -769,6 +832,7 @@ if "active_bet" in st.session_state:
 
 if is_live and live_data.get("live") and live_data.get("events"):
     st.markdown("<hr>", unsafe_allow_html=True)
+    st.markdown("<p class='section-label'>Match Feed</p>", unsafe_allow_html=True)
     st.markdown("<h3>Live Match Events</h3>", unsafe_allow_html=True)
     for ev_item in reversed(live_data["events"][-10:]):
         team_label = team_a if ev_item["team"] == "A" else team_b
@@ -777,14 +841,17 @@ if is_live and live_data.get("live") and live_data.get("events"):
             else "🟥" if "Red" in ev_item.get("detail", "")
             else "🟨"
         )
-        st.write(
-            f"{icon} **{ev_item['minute']}'** — {ev_item['detail']} "
-            f"| {team_label} | {ev_item['player']}"
+        st.markdown(
+            f"<div style='border-bottom:1px solid #E5E5E0; padding:0.4rem 0; font-family:\"Inter\",sans-serif; font-size:0.85rem;'>"
+            f"{icon} <strong>{ev_item['minute']}'</strong> — {ev_item['detail']} "
+            f"| {team_label} | {ev_item['player']}</div>",
+            unsafe_allow_html=True,
         )
 
 
 # ── FULL REPORT ──────────────────────────────────────────────────────────────
 
+st.markdown("<hr>", unsafe_allow_html=True)
 with st.expander("Full Prediction Report"):
     report = build_report(
         team_a, team_b, competition, f"{venue_city}, {venue_country}",
@@ -799,6 +866,18 @@ with st.expander("Full Prediction Report"):
         file_name=f"{team_a}_vs_{team_b}_{datetime.now().strftime('%Y%m%d_%H%M')}.md",
         mime="text/markdown",
     )
+
+
+# ── FOOTER ───────────────────────────────────────────────────────────────────
+
+st.markdown("<hr>", unsafe_allow_html=True)
+st.markdown(
+    f"<div style='display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0;'>"
+    f"<span class='edition' style='border:none; margin:0; padding:0;'>Vol. 1 | {datetime.now().strftime('%d %b %Y')} | World Cup Edition</span>"
+    f"<span class='edition' style='border:none; margin:0; padding:0;'>FIFA Prediction Engine v2 — Dixon-Coles Poisson + Dynamic ELO</span>"
+    f"</div>",
+    unsafe_allow_html=True,
+)
 
 
 # ── AUTO-REFRESH ─────────────────────────────────────────────────────────────
