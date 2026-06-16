@@ -50,7 +50,13 @@ NEWSPRINT_CSS = """
     div[data-testid="metric-container"] { background: #F9F9F7; border: 1px solid #111111; padding: 1rem; margin: 0; }
     div[data-testid="metric-container"] label { color: #737373 !important; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.15em; font-family: 'JetBrains Mono', monospace; }
     div[data-testid="metric-container"] div[data-testid="metric-value"] { color: #111111 !important; font-size: 1.8rem !important; font-weight: 700; font-family: 'Playfair Display', serif; }
-    div[data-testid="stSelectbox"] > div { background-color: #F9F9F7; border: 1px solid #111111; }
+    div[data-testid="stSelectbox"] > div { background-color: #F9F9F7; border: 1px solid #111111; min-height: 44px; display: flex; align-items: center; }
+    div[data-testid="stSelectbox"] [data-baseweb="select"] { border: none !important; background: transparent !important; box-shadow: none !important; }
+    div[data-testid="stSelectbox"] [data-baseweb="select"] > div { border: none !important; background: transparent !important; box-shadow: none !important; }
+    div[data-testid="stSelectbox"] [data-baseweb="popover"] { background: #F9F9F7 !important; border: 1px solid #111111 !important; border-radius: 0 !important; box-shadow: 4px 4px 0px 0px #111111 !important; }
+    div[data-testid="stSelectbox"] [data-baseweb="popover"] li { font-family: 'Inter', sans-serif !important; font-size: 0.8rem !important; border-bottom: 1px solid #E5E5E0 !important; }
+    div[data-testid="stSelectbox"] [data-baseweb="popover"] li:hover { background: #F0F0F0 !important; }
+    div[data-testid="stSelectbox"] svg { fill: #111111 !important; }
     .st-bw { background-color: #F9F9F7; }
     .stButton > button {
         font-family: 'Inter', sans-serif !important;
@@ -82,7 +88,8 @@ NEWSPRINT_CSS = """
     #MainMenu { display: none; }
     header { display: none; }
     div[data-testid="stExpander"] { background: #F9F9F7; border: 1px solid #111111; }
-    .stAlert { background-color: #F9F9F7; border: 1px solid #111111; color: #111111; }
+    .stAlert { background-color: #F9F9F7; border: 1px solid #111111; color: #111111; font-family: 'Inter', sans-serif; font-size: 0.8rem; }
+    .stAlert p { font-family: 'Inter', sans-serif; font-size: 0.8rem; }
     hr { border-color: #111111; margin: 2rem 0; border-width: 2px 0 0 0; }
 
     .conf-very-high { color: #111111; font-weight: 700; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.15em; }
@@ -125,7 +132,10 @@ NEWSPRINT_CSS = """
 
     .ticker { background: #111111; color: #F9F9F7; padding: 0.5rem 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; }
 
-    input, textarea, .stNumberInput input { border-radius: 0 !important; border-bottom: 2px solid #111111 !important; background: transparent !important; font-family: 'JetBrains Mono', monospace !important; }
+    input, textarea, .stNumberInput input, .stNumberInput div[data-baseweb="input"] { border-radius: 0 !important; border-bottom: 2px solid #111111 !important; background: transparent !important; font-family: 'JetBrains Mono', monospace !important; }
+    .stNumberInput div[data-baseweb="input"] { border: none !important; box-shadow: none !important; }
+    .stNumberInput button { border: 1px solid #111111 !important; background: #F9F9F7 !important; border-radius: 0 !important; color: #111111 !important; min-height: 44px; min-width: 44px; }
+    .stNumberInput button:hover { background: #111111 !important; color: #F9F9F7 !important; }
     input:focus, textarea:focus { background: #F0F0F0 !important; outline: none !important; }
 
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
@@ -140,6 +150,8 @@ if "match_idx" not in st.session_state:
     st.session_state["match_idx"] = 0
 if "prob_history" not in st.session_state:
     st.session_state["prob_history"] = []
+if "prediction_records" not in st.session_state:
+    st.session_state["prediction_records"] = {}
 
 
 def get_match():
@@ -164,7 +176,18 @@ with st.sidebar:
 
     match = get_match()
     matches = st.session_state["matches"]
-    match_labels = [f"{m['home']} vs {m['away']}" for m in matches]
+    match_labels = []
+    for m in matches:
+        sts = m.get("status", "")
+        if sts == "FINISHED":
+            sh = m.get("score_home", "")
+            sa = m.get("score_away", "")
+            lbl = f"{m['home']} {sh}–{sa} {m['away']} (FT)"
+        elif sts in ("LIVE", "IN_PLAY", "PAUSED"):
+            lbl = f"🔴 {m['home']} vs {m['away']}"
+        else:
+            lbl = f"{m['home']} vs {m['away']}"
+        match_labels.append(lbl)
 
     team_a = "Team A"
     team_b = "Team B"
@@ -172,6 +195,7 @@ with st.sidebar:
     venue_city = "Unknown"
     venue_country = "Unknown"
     is_live = False
+    is_finished = False
 
     if matches:
         sel = st.selectbox(
@@ -194,6 +218,7 @@ with st.sidebar:
             venue_country = match.get("country", "Unknown")
             match_status = match.get("status", "SCHEDULED")
             is_live = match_status in ("LIVE", "IN_PLAY", "PAUSED")
+            is_finished = match_status == "FINISHED"
         else:
             first = matches[0]
             team_a = first["home"]
@@ -202,6 +227,7 @@ with st.sidebar:
             venue_city = first.get("city", venue_city)
             venue_country = first.get("country", venue_country)
             is_live = first.get("status", "SCHEDULED") in ("LIVE", "IN_PLAY", "PAUSED")
+            is_finished = first.get("status", "SCHEDULED") == "FINISHED"
             st.session_state["match_idx"] = 0
     else:
         st.warning("No matches available.")
@@ -309,6 +335,50 @@ with st.spinner("Loading prediction model..."):
     st.session_state["is_live"] = is_live
     st.session_state["live_data"] = live_data
 
+    match_id = match.get("id", hash(team_a + team_b)) if match else hash(team_a + team_b)
+    match_key = f"{match_id}"
+    if match_key not in st.session_state["prediction_records"]:
+        st.session_state["prediction_records"][match_key] = {
+            "home": team_a, "away": team_b,
+            "competition": competition,
+            "venue": f"{venue_city}, {venue_country}",
+            "date": match.get("date", "") if match else "",
+            "model_a": probs["a_win"],
+            "model_d": probs["draw"],
+            "model_b": probs["b_win"],
+            "confidence": conf,
+            "predicted_winner": probs.get("predicted_winner", "?"),
+            "model_xg_a": probs.get("xg_a", "-"),
+            "model_xg_b": probs.get("xg_b", "-"),
+            "market_a": market.get("implied_a", 0) * 100,
+            "market_d": market.get("implied_d", 0) * 100,
+            "market_b": market.get("implied_b", 0) * 100,
+            "actual_score_h": None,
+            "actual_score_a": None,
+            "actual_winner": None,
+            "status": match_status,
+        }
+    rec = st.session_state["prediction_records"][match_key]
+    if is_finished:
+        rec["status"] = "FINISHED"
+        act_h = match.get("score_home") if match else None
+        act_a = match.get("score_away") if match else None
+        if act_h is not None and act_a is not None:
+            rec["actual_score_h"] = act_h
+            rec["actual_score_a"] = act_a
+            if act_h > act_a:
+                rec["actual_winner"] = "home"
+            elif act_h == act_a:
+                rec["actual_winner"] = "draw"
+            else:
+                rec["actual_winner"] = "away"
+    elif is_live:
+        rec["status"] = "LIVE"
+        ld = live_data or {}
+        if ld.get("live"):
+            rec["actual_score_h"] = ld.get("score_a", 0)
+            rec["actual_score_a"] = ld.get("score_b", 0)
+
     now_min = live_data.get("minute", 0) if is_live and live_data.get("live") else 0
     entry = {
         "minute": now_min,
@@ -328,7 +398,20 @@ match_date = match.get("date", "") if match else ""
 
 col_hdr, col_live = st.columns([3, 1])
 with col_hdr:
-    if is_live and live_data.get("live"):
+    if is_finished:
+        act_h = match.get("score_home") if match else None
+        act_a = match.get("score_away") if match else None
+        scored = f"{act_h}–{act_a}" if act_h is not None and act_a is not None else "—"
+        st.markdown(
+            f"<div style='display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;'>"
+            f"<h2 style='margin:0; font-size:2.5rem;'>{team_a} vs {team_b}</h2>"
+            f"<span class='badge badge-black'>FINAL</span>"
+            f"<span style='font-family:\"Playfair Display\",serif; font-size:2rem; font-weight:900;'>{scored}</span>"
+            f"</div>"
+            f"<p style='color:#737373;margin:0.25rem 0; font-family:\"JetBrains Mono\",monospace; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em;'>{venue_str} | {competition}</p>",
+            unsafe_allow_html=True,
+        )
+    elif is_live and live_data.get("live"):
         ld = live_data
         st.markdown(
             f"<div style='display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;'>"
@@ -366,6 +449,109 @@ with col_live:
                 )
         except Exception:
             pass
+
+
+# ── SETTLED MATCH ───────────────────────────────────────────────────────────
+
+if is_finished:
+    match_id = match.get("id", hash(team_a + team_b)) if match else hash(team_a + team_b)
+    match_key = f"{match_id}"
+    rec = st.session_state["prediction_records"].get(match_key, {})
+    if rec.get("actual_score_h") is not None:
+        st.markdown("<hr>", unsafe_allow_html=True)
+        st.markdown("<p class='section-label'>Settled</p>", unsafe_allow_html=True)
+        st.markdown(
+            f"<h3>Prediction vs Result</h3>"
+            f"<span style='color:#737373; font-family:\"JetBrains Mono\",monospace; font-size:0.65rem; text-transform:uppercase; letter-spacing:0.1em;'>"
+            f"Pre-match prediction vs actual outcome</span>",
+            unsafe_allow_html=True,
+        )
+
+        model_pred = rec.get("predicted_winner", "?")
+        model_pct = max(rec.get("model_a", 0), rec.get("model_d", 0), rec.get("model_b", 0))
+        act_h = rec.get("actual_score_h", 0)
+        act_a = rec.get("actual_score_a", 0)
+        if act_h > act_a:
+            actual_winner_key = "home"
+            actual_label = team_a
+        elif act_h == act_a:
+            actual_winner_key = "draw"
+            actual_label = "Draw"
+        else:
+            actual_winner_key = "away"
+            actual_label = team_b
+
+        model_correct = False
+        if actual_winner_key == "home" and model_pred in ("Team A", team_a):
+            model_correct = True
+        elif actual_winner_key == "draw" and model_pred == "DRAW":
+            model_correct = True
+        elif actual_winner_key == "away" and model_pred in ("Team B", team_b):
+            model_correct = True
+
+        col_sa, col_sb, col_sc = st.columns(3)
+        with col_sa:
+            st.markdown(
+                f"<div class='prob-card'>"
+                f"<div class='prob-card-title'>Actual Result</div>"
+                f"<div style='font-family:\"Playfair Display\",serif; font-size:2.5rem; font-weight:900;'>{act_h} – {act_a}</div>"
+                f"<div class='prob-meta'>{actual_label}</div>"
+                f"</div>",
+                unsafe_allow_html=True,
+            )
+        with col_sb:
+            st.markdown(
+                f"<div class='prob-card'>"
+                f"<div class='prob-card-title'>Model Predicted</div>"
+                f"<div style='font-family:\"Playfair Display\",serif; font-size:2.5rem; font-weight:900;'>{model_pct:.1f}%</div>"
+                f"<div class='prob-meta'>{model_pred}</div>"
+                f"</div>",
+                unsafe_allow_html=True,
+            )
+        with col_sc:
+            verdict = "CORRECT" if model_correct else "INCORRECT"
+            v_color = "#111111" if model_correct else "#CC0000"
+            st.markdown(
+                f"<div class='ev-card' style='border-color:{v_color};'>"
+                f"<div class='ev-label'>Verdict</div>"
+                f"<div style='font-family:\"Playfair Display\",serif; font-size:1.5rem; font-weight:900; color:{v_color};'>{verdict}</div>"
+                f"</div>",
+                unsafe_allow_html=True,
+            )
+
+        col_s1, col_s2 = st.columns(2)
+        with col_s1:
+            st.markdown(f"<p class='section-label' style='margin-top:0.5rem;'>Model Breakdown</p>", unsafe_allow_html=True)
+            st.markdown(
+                f"<div style='display:grid; grid-template-columns:1fr 1fr 1fr; border:1px solid #111111; text-align:center;'>"
+                f"<div style='padding:0.5rem; border-right:1px solid #111111; font-family:\"JetBrains Mono\",monospace; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em; color:#737373;'>Outcome</div>"
+                f"<div style='padding:0.5rem; border-right:1px solid #111111; font-family:\"JetBrains Mono\",monospace; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em; color:#737373;'>Model</div>"
+                f"<div style='padding:0.5rem; font-family:\"JetBrains Mono\",monospace; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em; color:#737373;'>Market</div>"
+                f"<div style='padding:0.4rem; border-right:1px solid #111111; border-top:1px solid #111111; font-family:\"Playfair Display\",serif; font-weight:700;'>{team_a}</div>"
+                f"<div style='padding:0.4rem; border-right:1px solid #111111; border-top:1px solid #111111;'>{rec.get('model_a',0):.1f}%</div>"
+                f"<div style='padding:0.4rem; border-top:1px solid #111111;'>{rec.get('market_a',0):.1f}%</div>"
+                f"<div style='padding:0.4rem; border-right:1px solid #111111; border-top:1px solid #111111; font-family:\"Playfair Display\",serif; font-weight:700;'>Draw</div>"
+                f"<div style='padding:0.4rem; border-right:1px solid #111111; border-top:1px solid #111111;'>{rec.get('model_d',0):.1f}%</div>"
+                f"<div style='padding:0.4rem; border-top:1px solid #111111;'>{rec.get('market_d',0):.1f}%</div>"
+                f"<div style='padding:0.4rem; border-right:1px solid #111111; border-top:1px solid #111111; font-family:\"Playfair Display\",serif; font-weight:700;'>{team_b}</div>"
+                f"<div style='padding:0.4rem; border-right:1px solid #111111; border-top:1px solid #111111;'>{rec.get('model_b',0):.1f}%</div>"
+                f"<div style='padding:0.4rem; border-top:1px solid #111111;'>{rec.get('market_b',0):.1f}%</div>"
+                f"</div>",
+                unsafe_allow_html=True,
+            )
+        with col_s2:
+            st.markdown(f"<p class='section-label' style='margin-top:0.5rem;'>Match Info</p>", unsafe_allow_html=True)
+            st.markdown(
+                f"<div class='stat-card'>"
+                f"<p class='stat-label'>Confidence</p>"
+                f"<p class='stat-value'>{rec.get('confidence', '—')}</p>"
+                f"<p class='stat-label' style='margin-top:0.5rem;'>Predicted Score</p>"
+                f"<p class='stat-value'>{rec.get('model_xg_a','-')}–{rec.get('model_xg_b','-')}</p>"
+                f"<p class='stat-label' style='margin-top:0.5rem;'>Actual Score</p>"
+                f"<p class='stat-value'>{act_h}–{act_a}</p>"
+                f"</div>",
+                unsafe_allow_html=True,
+            )
 
 
 # ── PROBABILITY CARDS ────────────────────────────────────────────────────────

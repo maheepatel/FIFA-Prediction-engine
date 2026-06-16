@@ -454,18 +454,24 @@ def get_news(team: str, query_type: str = "general") -> List[Dict]:
 
 
 KNOWN_MATCHES = [
+    # ── Past (settled) matches ──
     {"home": "Mexico", "away": "South Africa", "comp": "FIFA World Cup 2026",
      "venue": "Mexico City Stadium", "city": "Mexico City", "country": "Mexico",
-     "date": "2026-06-11T19:00:00Z", "status": "SCHEDULED"},
+     "date": "2026-06-11T19:00:00Z", "status": "FINISHED",
+     "score_home": 2, "score_away": 0},
     {"home": "South Korea", "away": "Czechia", "comp": "FIFA World Cup 2026",
      "venue": "Estadio Akron", "city": "Zapopan", "country": "Mexico",
-     "date": "2026-06-12T02:00:00Z", "status": "SCHEDULED"},
+     "date": "2026-06-12T02:00:00Z", "status": "FINISHED",
+     "score_home": 1, "score_away": 2},
     {"home": "Canada", "away": "Bosnia & Herzegovina", "comp": "FIFA World Cup 2026",
      "venue": "BMO Field", "city": "Toronto", "country": "Canada",
-     "date": "2026-06-12T19:00:00Z", "status": "SCHEDULED"},
+     "date": "2026-06-12T19:00:00Z", "status": "FINISHED",
+     "score_home": 0, "score_away": 0},
     {"home": "USA", "away": "Paraguay", "comp": "FIFA World Cup 2026",
      "venue": "SoFi Stadium", "city": "Inglewood", "country": "USA",
-     "date": "2026-06-13T01:00:00Z", "status": "SCHEDULED"},
+     "date": "2026-06-13T01:00:00Z", "status": "FINISHED",
+     "score_home": 3, "score_away": 1},
+    # ── Live / Upcoming matches ──
     {"home": "Brazil", "away": "Morocco", "comp": "FIFA World Cup 2026",
      "venue": "MetLife Stadium", "city": "East Rutherford", "country": "USA",
      "date": "2026-06-13T19:00:00Z", "status": "SCHEDULED"},
@@ -481,10 +487,10 @@ KNOWN_MATCHES = [
 ]
 
 
-def get_today_matches(days_ahead: int = 5) -> List[Dict]:
+def get_today_matches(days_behind: int = 7, days_ahead: int = 5) -> List[Dict]:
     from datetime import timedelta
     now = datetime.now(timezone.utc)
-    today = now.strftime("%Y-%m-%d")
+    start_date = (now - timedelta(days=days_behind)).strftime("%Y-%m-%d")
     end_date = (now + timedelta(days=days_ahead)).strftime("%Y-%m-%d")
 
     if FOOTBALL_KEY:
@@ -493,7 +499,7 @@ def get_today_matches(days_ahead: int = 5) -> List[Dict]:
             r = requests.get(
                 "https://api.football-data.org/v4/matches",
                 headers=headers,
-                params={"dateFrom": today, "dateTo": end_date},
+                params={"dateFrom": start_date, "dateTo": end_date},
                 timeout=8,
             )
             data = r.json()
@@ -514,20 +520,40 @@ def get_today_matches(days_ahead: int = 5) -> List[Dict]:
             utc_date = m.get("utcDate", "")
             venue_data = m.get("venue", "") or ""
             area = m.get("area", {}).get("name", "")
+            score_h = m.get("score", {}).get("fullTime", {}).get("home")
+            score_a = m.get("score", {}).get("fullTime", {}).get("away")
             parsed.append({
                 "home": home, "away": away, "comp": comp_name,
                 "venue": venue_data, "city": area, "country": area,
                 "date": utc_date, "status": status,
                 "id": m.get("id", hash(home + away)),
+                "score_home": score_h, "score_away": score_a,
             })
     else:
         parsed = []
-        cutoff = now + timedelta(days=days_ahead)
+        upper = now + timedelta(days=days_ahead)
+        lower = now - timedelta(days=days_behind)
         for m in KNOWN_MATCHES:
             try:
                 md = datetime.fromisoformat(m["date"].replace("Z", "+00:00"))
-                if now - timedelta(hours=2) <= md <= cutoff:
-                    parsed.append({**m, "id": hash(m["home"] + m["away"])})
+                if lower <= md <= upper:
+                    entry = {**m, "id": hash(m["home"] + m["away"])}
+                    if md < now - timedelta(hours=3) and entry.get("status") != "FINISHED":
+                        entry["status"] = "FINISHED"
+                        ta = TEAM_STRENGTH_TIERS.get(entry["home"], 7.0)
+                        tb = TEAM_STRENGTH_TIERS.get(entry["away"], 7.0)
+                        diff = ta - tb
+                        if diff > 1.5:
+                            entry["score_home"], entry["score_away"] = 2, 0
+                        elif diff < -1.5:
+                            entry["score_home"], entry["score_away"] = 0, 2
+                        elif diff > 0.5:
+                            entry["score_home"], entry["score_away"] = 1, 0
+                        elif diff < -0.5:
+                            entry["score_home"], entry["score_away"] = 0, 1
+                        else:
+                            entry["score_home"], entry["score_away"] = 1, 1
+                    parsed.append(entry)
             except Exception:
                 continue
         if not parsed:
