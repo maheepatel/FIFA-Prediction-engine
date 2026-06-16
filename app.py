@@ -50,13 +50,20 @@ NEWSPRINT_CSS = """
     div[data-testid="metric-container"] { background: #F9F9F7; border: 1px solid #111111; padding: 1rem; margin: 0; }
     div[data-testid="metric-container"] label { color: #737373 !important; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.15em; font-family: 'JetBrains Mono', monospace; }
     div[data-testid="metric-container"] div[data-testid="metric-value"] { color: #111111 !important; font-size: 1.8rem !important; font-weight: 700; font-family: 'Playfair Display', serif; }
-    div[data-testid="stSelectbox"] > div { background-color: #F9F9F7; border: 1px solid #111111; min-height: 44px; display: flex; align-items: center; }
-    div[data-testid="stSelectbox"] [data-baseweb="select"] { border: none !important; background: transparent !important; box-shadow: none !important; }
-    div[data-testid="stSelectbox"] [data-baseweb="select"] > div { border: none !important; background: transparent !important; box-shadow: none !important; }
-    div[data-testid="stSelectbox"] [data-baseweb="popover"] { background: #F9F9F7 !important; border: 1px solid #111111 !important; border-radius: 0 !important; box-shadow: 4px 4px 0px 0px #111111 !important; }
-    div[data-testid="stSelectbox"] [data-baseweb="popover"] li { font-family: 'Inter', sans-serif !important; font-size: 0.8rem !important; border-bottom: 1px solid #E5E5E0 !important; }
+    div[data-testid="stSelectbox"] { border: none !important; background: transparent !important; }
+    div[data-testid="stSelectbox"] > div { background: #F9F9F7; border: 1px solid #111111; min-height: 44px; display: flex; align-items: center; padding: 0 0.5rem; }
+    div[data-testid="stSelectbox"] div[data-baseweb="select"], 
+    div[data-testid="stSelectbox"] div[data-baseweb="select"] > div, 
+    div[data-testid="stSelectbox"] div[data-baseweb="select"] > div > div,
+    div[data-testid="stSelectbox"] div[role="button"] {
+        border: none !important; background: transparent !important; box-shadow: none !important; outline: none !important; 
+    }
+    div[data-testid="stSelectbox"] [data-baseweb="select"] span { background: transparent !important; }
+    div[data-testid="stSelectbox"] [data-baseweb="popover"] { background: #F9F9F7 !important; border: 1px solid #111111 !important; box-shadow: 4px 4px 0px 0px #111111 !important; margin-top: 2px !important; }
+    div[data-testid="stSelectbox"] [data-baseweb="popover"] li { font-family: 'Inter', sans-serif !important; font-size: 0.8rem !important; border-bottom: 1px solid #E5E5E0 !important; padding: 0.5rem 0.75rem !important; }
     div[data-testid="stSelectbox"] [data-baseweb="popover"] li:hover { background: #F0F0F0 !important; }
     div[data-testid="stSelectbox"] svg { fill: #111111 !important; }
+    div[data-testid="stSelectbox"] label { font-family: 'Inter', sans-serif !important; font-size: 0.65rem !important; text-transform: uppercase !important; letter-spacing: 0.1em !important; color: #737373 !important; }
     .st-bw { background-color: #F9F9F7; }
     .stButton > button {
         font-family: 'Inter', sans-serif !important;
@@ -335,6 +342,8 @@ with st.spinner("Loading prediction model..."):
     st.session_state["is_live"] = is_live
     st.session_state["live_data"] = live_data
 
+    conf = probs.get("confidence", "MEDIUM")
+
     match_id = match.get("id", hash(team_a + team_b)) if match else hash(team_a + team_b)
     match_key = f"{match_id}"
     if match_key not in st.session_state["prediction_records"]:
@@ -560,7 +569,6 @@ st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown("<p class='section-label'>Prediction</p>", unsafe_allow_html=True)
 st.markdown("<h3>Win Probability</h3>", unsafe_allow_html=True)
 
-conf = probs.get("confidence", "MEDIUM")
 conf_class = {
     "VERY HIGH": "conf-very-high",
     "HIGH": "conf-high",
