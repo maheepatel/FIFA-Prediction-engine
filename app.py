@@ -50,20 +50,16 @@ NEWSPRINT_CSS = """
     div[data-testid="metric-container"] { background: #F9F9F7; border: 1px solid #111111; padding: 1rem; margin: 0; }
     div[data-testid="metric-container"] label { color: #737373 !important; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.15em; font-family: 'JetBrains Mono', monospace; }
     div[data-testid="metric-container"] div[data-testid="metric-value"] { color: #111111 !important; font-size: 1.8rem !important; font-weight: 700; font-family: 'Playfair Display', serif; }
-    div[data-testid="stSelectbox"] { border: none !important; background: transparent !important; }
-    div[data-testid="stSelectbox"] > div { background: #F9F9F7; border: 1px solid #111111; min-height: 44px; display: flex; align-items: center; padding: 0 0.5rem; }
-    div[data-testid="stSelectbox"] div[data-baseweb="select"], 
-    div[data-testid="stSelectbox"] div[data-baseweb="select"] > div, 
-    div[data-testid="stSelectbox"] div[data-baseweb="select"] > div > div,
-    div[data-testid="stSelectbox"] div[role="button"] {
-        border: none !important; background: transparent !important; box-shadow: none !important; outline: none !important; 
-    }
-    div[data-testid="stSelectbox"] [data-baseweb="select"] span { background: transparent !important; }
-    div[data-testid="stSelectbox"] [data-baseweb="popover"] { background: #F9F9F7 !important; border: 1px solid #111111 !important; box-shadow: 4px 4px 0px 0px #111111 !important; margin-top: 2px !important; }
-    div[data-testid="stSelectbox"] [data-baseweb="popover"] li { font-family: 'Inter', sans-serif !important; font-size: 0.8rem !important; border-bottom: 1px solid #E5E5E0 !important; padding: 0.5rem 0.75rem !important; }
-    div[data-testid="stSelectbox"] [data-baseweb="popover"] li:hover { background: #F0F0F0 !important; }
+    div[data-testid="stSelectbox"] { background: transparent !important; border: none !important; }
+    div[data-testid="stSelectbox"] > div { background: #F9F9F7 !important; border: 1px solid #111111 !important; min-height: 44px; display: flex; align-items: center; padding: 0 0.75rem; }
+    div[data-testid="stSelectbox"] > div * { background: transparent !important; border: none !important; box-shadow: none !important; outline: none !important; }
     div[data-testid="stSelectbox"] svg { fill: #111111 !important; }
     div[data-testid="stSelectbox"] label { font-family: 'Inter', sans-serif !important; font-size: 0.65rem !important; text-transform: uppercase !important; letter-spacing: 0.1em !important; color: #737373 !important; }
+    div[data-testid="stSelectbox"] [data-baseweb="popover"],
+    div[data-testid="stSelectbox"] [data-baseweb="popover"] * { all: revert; }
+    div[data-testid="stSelectbox"] [data-baseweb="popover"] { background: #F9F9F7 !important; border: 1px solid #111111 !important; box-shadow: 4px 4px 0px 0px #111111 !important; }
+    div[data-testid="stSelectbox"] [data-baseweb="popover"] li { font-family: 'Inter', sans-serif !important; font-size: 0.8rem !important; border-bottom: 1px solid #E5E5E0 !important; padding: 0.5rem 0.75rem !important; }
+    div[data-testid="stSelectbox"] [data-baseweb="popover"] li:hover { background: #F0F0F0 !important; }
     .st-bw { background-color: #F9F9F7; }
     .stButton > button {
         font-family: 'Inter', sans-serif !important;
@@ -186,14 +182,16 @@ with st.sidebar:
     match_labels = []
     for m in matches:
         sts = m.get("status", "")
+        comp = m.get("comp", "")
+        comp_short = comp.replace("FIFA World Cup 2026 - ", "")
         if sts == "FINISHED":
             sh = m.get("score_home", "")
             sa = m.get("score_away", "")
-            lbl = f"{m['home']} {sh}–{sa} {m['away']} (FT)"
+            lbl = f"{m['home']} {sh}–{sa} {m['away']}  |  {comp_short}"
         elif sts in ("LIVE", "IN_PLAY", "PAUSED"):
-            lbl = f"🔴 {m['home']} vs {m['away']}"
+            lbl = f"🔴 {m['home']} vs {m['away']}  |  {comp_short}"
         else:
-            lbl = f"{m['home']} vs {m['away']}"
+            lbl = f"{m['home']} vs {m['away']}  |  {comp_short}"
         match_labels.append(lbl)
 
     team_a = "Team A"
