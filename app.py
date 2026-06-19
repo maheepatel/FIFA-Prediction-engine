@@ -143,18 +143,59 @@ NEWSPRINT_CSS = """
 
     @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
     .live-dot { width: 10px; height: 10px; background: #CC0000; display: inline-block; animation: pulse 1.5s infinite; }
+    a.match-item { display:block; text-decoration:none; color:inherit; background:#F9F9F7; border:1px solid #111111; border-radius:4px; padding:6px 10px; margin:2px 0; font-size:0.75rem; font-family:Inter,sans-serif; cursor:pointer; line-height:1.4; overflow-wrap:break-word; word-break:break-word; }
+    a.match-item:visited { color:inherit; }
+    a.match-item:hover { border-color:#CC0000; }
+
 </style>
 """
 st.markdown(NEWSPRINT_CSS, unsafe_allow_html=True)
+
+MATCHES_PER_PAGE = 12
+
+COUNTRY_FLAGS = {
+    "Algeria": "🇩🇿", "Argentina": "🇦🇷", "Australia": "🇦🇺",
+    "Austria": "🇦🇹", "Belgium": "🇧🇪", "Bosnia & Herzegovina": "🇧🇦",
+    "Brazil": "🇧🇷", "Canada": "🇨🇦", "Cape Verde": "🇨🇻",
+    "Colombia": "🇨🇴", "Congo DR": "🇨🇩", "Croatia": "🇭🇷",
+    "Curacao": "🇨🇼", "Czechia": "🇨🇿", "Ecuador": "🇪🇨",
+    "Egypt": "🇪🇬", "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "France": "🇫🇷",
+    "Germany": "🇩🇪", "Ghana": "🇬🇭", "Haiti": "🇭🇹",
+    "Iran": "🇮🇷", "Iraq": "🇮🇶", "Ivory Coast": "🇨🇮",
+    "Japan": "🇯🇵", "Jordan": "🇯🇴", "Mexico": "🇲🇽",
+    "Morocco": "🇲🇦", "Netherlands": "🇳🇱", "New Zealand": "🇳🇿",
+    "Norway": "🇳🇴", "Panama": "🇵🇦", "Paraguay": "🇵🇾",
+    "Portugal": "🇵🇹", "Qatar": "🇶🇦", "Saudi Arabia": "🇸🇦",
+    "Scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "Senegal": "🇸🇳", "South Africa": "🇿🇦",
+    "South Korea": "🇰🇷", "Spain": "🇪🇸", "Sweden": "🇸🇪",
+    "Switzerland": "🇨🇭", "Tunisia": "🇹🇳", "Turkey": "🇹🇷",
+    "Uruguay": "🇺🇾", "USA": "🇺🇸", "Uzbekistan": "🇺🇿",
+}
 
 if "matches" not in st.session_state:
     st.session_state["matches"] = get_today_matches()
 if "match_idx" not in st.session_state:
     st.session_state["match_idx"] = 0
+if "page" not in st.session_state:
+    st.session_state["page"] = 0
 if "prob_history" not in st.session_state:
     st.session_state["prob_history"] = []
 if "prediction_records" not in st.session_state:
     st.session_state["prediction_records"] = {}
+
+qm = st.query_params.get("match")
+if qm is not None:
+    try:
+        idx = int(qm)
+        ms = st.session_state["matches"]
+        if 0 <= idx < len(ms):
+            st.session_state["match_idx"] = idx
+            st.session_state["page"] = idx // MATCHES_PER_PAGE
+            st.session_state["prob_history"] = []
+    except ValueError:
+        pass
+    if "match" in st.query_params:
+        del st.query_params["match"]
 
 
 def get_match():
@@ -184,14 +225,25 @@ with st.sidebar:
         sts = m.get("status", "")
         comp = m.get("comp", "")
         comp_short = comp.replace("FIFA World Cup 2026 - ", "")
-        if sts == "FINISHED":
+        mn = m.get("match", "")
+        mn_str = f"#{mn}" if mn else ""
+        hf = COUNTRY_FLAGS.get(m["home"], "")
+        af = COUNTRY_FLAGS.get(m["away"], "")
+        if m.get("note"):
+            note = m["note"]
+        elif sts == "FINISHED":
             sh = m.get("score_home", "")
             sa = m.get("score_away", "")
-            lbl = f"{m['home']} {sh}–{sa} {m['away']}  |  {comp_short}"
+            lbl = f"{mn_str} {hf} {m['home']} {sh}–{sa} {m['away']} {af}  |  {comp_short}"
+            match_labels.append(lbl)
+            continue
         elif sts in ("LIVE", "IN_PLAY", "PAUSED"):
-            lbl = f"🔴 {m['home']} vs {m['away']}  |  {comp_short}"
+            lbl = f"🔴 {mn_str} {hf} {m['home']} vs {m['away']} {af}  |  {comp_short}"
+            match_labels.append(lbl)
+            continue
         else:
-            lbl = f"{m['home']} vs {m['away']}  |  {comp_short}"
+            note = f"{m['home']} vs {m['away']}"
+        lbl = f"{mn_str} {note}  |  {comp_short}"
         match_labels.append(lbl)
 
     team_a = "Team A"
@@ -203,16 +255,63 @@ with st.sidebar:
     is_finished = False
 
     if matches:
-        sel = st.selectbox(
-            "Select Match",
-            range(len(match_labels)),
-            format_func=lambda i: match_labels[i],
-            index=st.session_state["match_idx"],
+        total_pages = max(1, (len(matches) + MATCHES_PER_PAGE - 1) // MATCHES_PER_PAGE)
+        page = min(st.session_state["page"], total_pages - 1)
+        st.session_state["page"] = page
+        start = page * MATCHES_PER_PAGE
+        end = min(start + MATCHES_PER_PAGE, len(matches))
+
+        st.markdown(
+            f"<p style='font-family:\"JetBrains Mono\",monospace; font-size:0.6rem; "
+            f"text-transform:uppercase; letter-spacing:0.15em; color:#737373; margin:0 0 0.25rem 0;'>"
+            f"Page {page+1} of {total_pages}</p>",
+            unsafe_allow_html=True,
         )
-        if sel != st.session_state["match_idx"]:
-            st.session_state["match_idx"] = sel
-            st.session_state["prob_history"] = []
-            st.rerun()
+
+        cols = st.columns([1, 1])
+        with cols[0]:
+            if st.button("◀", use_container_width=True, disabled=(page == 0), key="prev"):
+                st.session_state["page"] = page - 1
+                st.rerun()
+        with cols[1]:
+            if st.button("▶", use_container_width=True, disabled=(page >= total_pages - 1), key="next"):
+                st.session_state["page"] = page + 1
+                st.rerun()
+
+        window_size = min(5, total_pages)
+        half = window_size // 2
+        win_start = max(0, min(page - half, total_pages - window_size))
+        pnums = list(range(win_start, win_start + window_size))
+        pcols = st.columns(len(pnums))
+        for j, pn in enumerate(pnums):
+            with pcols[j]:
+                if st.button(
+                    str(pn + 1),
+                    use_container_width=True,
+                    type="primary" if pn == page else "secondary",
+                    key=f"pg_{pn}",
+                ):
+                    st.session_state["page"] = pn
+                    st.rerun()
+
+        st.markdown("<hr style='margin:0.4rem 0;'>", unsafe_allow_html=True)
+
+        page_labels = match_labels[start:end]
+        for i, lbl in enumerate(page_labels):
+            actual_idx = start + i
+            is_selected = actual_idx == st.session_state["match_idx"]
+            if is_selected:
+                st.markdown(
+                    f"<div style='background:#CC0000; color:#F9F9F7; border:1px solid #CC0000; "
+                    f"border-radius:4px; padding:6px 10px; margin:2px 0; font-size:0.75rem; "
+                    f"font-family:Inter,sans-serif; font-weight:600; line-height:1.4; overflow-wrap:break-word; word-break:break-word;'>{lbl}</div>",
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.markdown(
+                    f"<a href='?match={actual_idx}' class='match-item'>{lbl}</a>",
+                    unsafe_allow_html=True,
+                )
 
         match = get_match()
         if match:
@@ -409,9 +508,11 @@ with col_hdr:
         act_h = match.get("score_home") if match else None
         act_a = match.get("score_away") if match else None
         scored = f"{act_h}–{act_a}" if act_h is not None and act_a is not None else "—"
+        hf = COUNTRY_FLAGS.get(team_a, "")
+        af = COUNTRY_FLAGS.get(team_b, "")
         st.markdown(
             f"<div style='display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;'>"
-            f"<h2 style='margin:0; font-size:2.5rem;'>{team_a} vs {team_b}</h2>"
+            f"<h2 style='margin:0; font-size:2.5rem;'>{hf} {team_a} vs {af} {team_b}</h2>"
             f"<span class='badge badge-black'>FINAL</span>"
             f"<span style='font-family:\"Playfair Display\",serif; font-size:2rem; font-weight:900;'>{scored}</span>"
             f"</div>"
@@ -420,18 +521,22 @@ with col_hdr:
         )
     elif is_live and live_data.get("live"):
         ld = live_data
+        hf = COUNTRY_FLAGS.get(team_a, "")
+        af = COUNTRY_FLAGS.get(team_b, "")
         st.markdown(
             f"<div style='display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;'>"
             f"<span class='live-dot'></span>"
-            f"<h2 style='margin:0; font-size:2.5rem;'>{team_a} vs {team_b}</h2>"
+            f"<h2 style='margin:0; font-size:2.5rem;'>{hf} {team_a} vs {af} {team_b}</h2>"
             f"<span class='badge badge-red'>LIVE {ld['minute']}'</span>"
             f"<span style='font-family:\"Playfair Display\",serif; font-size:2rem; font-weight:700;'>{ld['score_a']}–{ld['score_b']}</span>"
             f"</div>",
             unsafe_allow_html=True,
         )
     else:
+        hf = COUNTRY_FLAGS.get(team_a, "")
+        af = COUNTRY_FLAGS.get(team_b, "")
         st.markdown(
-            f"<h2 style='margin:0; font-size:2.5rem;'>{team_a} vs {team_b}</h2>"
+            f"<h2 style='margin:0; font-size:2.5rem;'>{hf} {team_a} vs {af} {team_b}</h2>"
             f"<p style='color:#737373;margin:0.25rem 0; font-family:\"JetBrains Mono\",monospace; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em;'>{venue_str} | {competition}</p>",
             unsafe_allow_html=True,
         )
